@@ -1,0 +1,40 @@
+function [Biomass,Catch,Abundance] = PopulationModel_Full(MPAs,Tmax,Alpha,Beta,M_Effect,reef_size,IR)
+% Load parameters and connectivity matrices
+load DemographicParameters; load ConnMat_1121_S; M1 = M1(IR,IR); M2 = M2(IR,IR); M3 = M3(IR,IR); M4 = M4(IR,IR); M5 = M5(IR,IR); M6 = M6(IR,IR); M7 = M7(IR,IR);
+
+% Initialization
+NumReefs = size(M1,1); 
+% Population density on each reef 
+N0 = 25;                                
+NonMPAs = [1:NumReefs]; NonMPAs(MPAs) = [];
+SURV = repmat(Survive,1,NumReefs);
+Beta = Beta.*ones(1,NumReefs);
+f(1:FertAge) = 0; f = repmat(f,1,NumReefs);
+ % Population Matrix; age classes by rows; reef patches by column
+N = N0.*ones(Ages,NumReefs)./Ages;   
+ % Results storage matrices              
+Catch = zeros(1,50);                
+Abundance = zeros(1,50); 
+Biomass = zeros(1,50);
+rng(5);
+
+% Simulate dispersal and fishing for Tmax = 400 years
+for t = 1:Tmax  
+    eval(['ConnMat = full(M' num2str(ceil(rand*7)) ');']); % Select random connectivity matrix from linmat
+% Determines how many larvae are created
+    L = sum(f.*N).*reef_size;
+% Density of larval settlement on each reef
+    rho_S = L*ConnMat./reef_size;
+% How many adults survive to the next age class?
+    N(2:Ages,:) = SURV.*N(1:Ages-1,:);  
+% What density larvae survive settlement?
+    N(1,:) = Alpha.*rho_S./(1+Beta.*rho_S); 
+% Fishing only impacts individuals over the size limit
+    PreFishing = N; N(FertAge:Ages,NonMPAs) = (1-M_Effect).*N(FertAge:Ages,NonMPAs); 
+ % Store the values from last 50 years of model run
+    if t > Tmax-50
+        Catch(t-Tmax+50) = sum(sum((PreFishing-N).*repmat(Mass,1,NumReefs)).*reef_size);
+        Abundance(t-Tmax+50) = sum(sum(N).*reef_size);
+        Biomass(t-Tmax+50) = sum(sum(repmat(Mass(FertAge:Ages),1,NumReefs).*N(FertAge:Ages,:)).*reef_size);
+    end
+end 
