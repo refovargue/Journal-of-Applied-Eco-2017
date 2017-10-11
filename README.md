@@ -12,3 +12,8 @@ Data and Code for Marine Protected Area size and spacing rules publication
     M_effect - fishing pressure
     reef_size - carrying capacity for each reef
     IR - option to limit reefs included in analysis
+    
+  # Matlab data
+    Connectivity matrixes
+    Reef Sizes
+    Demographic parameters
