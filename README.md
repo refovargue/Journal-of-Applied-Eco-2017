@@ -2,7 +2,7 @@
 Data and Code for Marine Protected Area size and spacing rules publication
 
 
-  # "Simulation code"  
+  # "Simulation Function"  
   This file contains the MATLAB code used to simulate population dynamics and fishery take on the Great Barrier Reef. 
   
   Input variables to the function:
